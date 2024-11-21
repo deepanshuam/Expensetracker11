@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Signup Page</title>
+  <title>Signup & Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-    <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Sign Up</h2>
-    <form action="/signup" method="POST" class="space-y-4">
+    <h2 id="form-title" class="text-2xl font-bold text-gray-800 text-center mb-6">Sign Up</h2>
+    
+    <!-- Signup Form -->
+    <form id="signupForm" class="space-y-4">
       <!-- Name Input -->
-      <div>
+      <div id="name-field">
         <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
         <input 
           type="text" 
@@ -52,11 +54,86 @@
       <!-- Submit Button -->
       <button 
         type="submit" 
+        id="form-submit"
         class="w-full bg-blue-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
       >
         Sign Up
       </button>
     </form>
+
+    <!-- Toggle Between Forms -->
+    <div class="text-center mt-4">
+      <button 
+        id="toggleForm" 
+        class="text-blue-500 font-medium hover:underline"
+      >
+        Already have an account? Login
+      </button>
+    </div>
   </div>
+
+  <script>
+    const formTitle = document.getElementById('form-title');
+    const nameField = document.getElementById('name-field');
+    const formSubmit = document.getElementById('form-submit');
+    const toggleForm = document.getElementById('toggleForm');
+    const signupForm = document.getElementById('signupForm');
+
+    // Toggle between Signup and Login forms
+    toggleForm.addEventListener('click', () => {
+  if (formTitle.textContent === 'Sign Up') {
+    // Switch to Login form
+    formTitle.textContent = 'Login';
+    nameField.style.display = 'none';
+    document.getElementById('name').removeAttribute('required'); // Remove 'required' attribute
+    formSubmit.textContent = 'Login';
+    toggleForm.textContent = "Don't have an account? Sign Up";
+  } else {
+    // Switch to Signup form
+    formTitle.textContent = 'Sign Up';
+    nameField.style.display = 'block';
+    document.getElementById('name').setAttribute('required', 'true'); // Add 'required' attribute
+    formSubmit.textContent = 'Sign Up';
+    toggleForm.textContent = 'Already have an account? Login';
+  }
+});
+
+
+    // Handle form submission
+    signupForm.addEventListener('submit', async function (event) {
+      event.preventDefault(); // Prevent default form submission
+      
+      const isSignup = formTitle.textContent === 'Sign Up';
+      const name = document.getElementById('name')?.value?.trim() || null;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      const endpoint = isSignup
+        ? 'http://localhost:8000/api/v1/users/register'
+        : 'http://localhost:8000/api/v1/users/login';
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(isSignup ? { name, email, password } : { email, password }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert(`${isSignup ? 'User registered' : 'Login successful'}!`);
+          // Redirect after login or clear the form
+          if (!isSignup) window.location.href = '/dashboard.html';
+        } else {
+          throw new Error(result.message || `${isSignup ? 'Registration' : 'Login'} failed`);
+        }
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+    });
+  </script>
 </body>
 </html>
