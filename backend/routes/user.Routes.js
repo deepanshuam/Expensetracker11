@@ -1,16 +1,18 @@
-import { Router } from 'express';
-import { registerUser,loginUser } from '../controller/user.Controller.js';
-// import authMiddleware from '../middleware/auth.Middleware.js'; // Import middleware
-
+import { Router } from "express";
+import {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  changePassword,
+} from "../controller/user.Controller.js";
+import {authMiddleware} from "../middleware/authmiddleware.js";
 const router = Router();
 
-// Register a User
-router.post('/register', registerUser);
-
-// Login a User
-router.post('/login', loginUser);
-
-// Logout a User (Protected Route)
-// router.post('/logout', authMiddleware, logoutUser);
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.post("/logout", authMiddleware, logoutUser);
+router.post("/refresh-token", refreshAccessToken);
+router.post("/change-password", authMiddleware, changePassword);
 
 export default router;
