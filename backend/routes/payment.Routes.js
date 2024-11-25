@@ -1,3 +1,4 @@
+// router.js
 import { Router } from 'express';
 import { createOrder, updateOrderStatus } from '../controller/razorpay.Controller.js';
 import { authMiddleware } from '../middleware/authmiddleware.js';

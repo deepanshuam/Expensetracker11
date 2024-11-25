@@ -80,48 +80,50 @@
     });
 
     // Handle form submission
-    // Handle form submission
     userForm.addEventListener('submit', async function (event) {
-  event.preventDefault();
+      event.preventDefault();
 
-  const isSignup = formTitle.textContent === 'Sign Up';
-  const name = isSignup ? document.getElementById('name').value.trim() : null;
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value.trim();
+      const isSignup = formTitle.textContent === 'Sign Up';
+      const name = isSignup ? document.getElementById('name').value.trim() : null;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-  const endpoint = isSignup
-    ? 'http://localhost:8000/api/v1/users/register'
-    : 'http://localhost:8000/api/v1/users/login';
+      const endpoint = isSignup
+        ? 'http://localhost:8000/api/v1/users/register'
+        : 'http://localhost:8000/api/v1/users/login';
 
-  try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    });
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
 
-    const result = await response.json();
+        const result = await response.json();
 
-    if (response.ok) {
-      if (isSignup) {
-        alert('Registration successful! Redirecting to login...');
-        window.location.href = '/'; // Redirect to the login page
-      } else {
-        alert('Login successful! Redirecting to the dashboard...');
-        localStorage.setItem('accessToken', result.accessToken);
-        localStorage.setItem('refreshToken', result.refreshToken);
-        window.location.href = '/dashboard.html'; // Redirect to the dashboard
+        console.log(result); // Log the response to check for tokens
+
+        if (response.ok) {
+          if (isSignup) {
+            alert('Registration successful! Redirecting to login...');
+            window.location.href = '/'; // Redirect to the login page
+          } else {
+            alert('Login successful! Redirecting to the dashboard...');
+            if (result.data.accessToken && result.data.refreshToken) {
+              localStorage.setItem('accessToken', result.data.accessToken);
+              localStorage.setItem('refreshToken', result.data.refreshToken);
+              window.location.href = '/dashboard.html'; // Redirect to the dashboard
+            } else {
+              alert('Error: Tokens not received from the server');
+            }
+          }
+        } else {
+          throw new Error(result.message || 'Something went wrong');
+        }
+      } catch (error) {
+        alert(`Error: ${error.message}`);
       }
-    } else {
-      throw new Error(result.message || 'Something went wrong');
-    }
-  } catch (error) {
-    alert(`Error: ${error.message}`);
-  }
-});
-
-  
-
+    });
   </script>
 </body>
 </html>

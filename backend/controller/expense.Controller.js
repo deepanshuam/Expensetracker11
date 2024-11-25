@@ -78,7 +78,7 @@ const deleteExpense = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Unauthorized");
   }
 
-  await expense.remove();
+  await expense.deleteOne();
   res
     .status(200)
     .json(new ApiResponse(200, null, "Expense deleted successfully"));

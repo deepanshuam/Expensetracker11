@@ -3,8 +3,9 @@ import cors from "cors";
 
 import cookieParser from "cookie-parser";
 import useRouter from "./routes/user.Routes.js";
-import expenseRouter from "./routes/expense.Route.js"
+import expenseRouter from "./routes/expense.Routes.js"
 import paymentRoutes from "./routes/payment.Routes.js"
+import leaderboards from "./routes/leaderboard.Routes.js"
 const app = express();
 app.use(cors());
 
@@ -20,4 +21,5 @@ app.use(cookieParser());
 app.use("/api/v1/users", useRouter);
 app.use("/api/v1/expense",expenseRouter)
 app.use('/api/V1/payments', paymentRoutes);
+app.use('/api/V1/leaderboards', leaderboards)
 export { app };

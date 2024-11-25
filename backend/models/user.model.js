@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const userSchema = new Schema(
@@ -10,7 +10,6 @@ const userSchema = new Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      index: true,
     },
     email: {
       type: String,
@@ -28,18 +27,23 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-// Pre-save hook for hashing password
+// Hash the password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+  try {
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
 
-// Instance methods
+// Method to compare plain password with hashed password
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+// Generate access token
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     { _id: this._id, email: this.email, name: this.name },
@@ -48,6 +52,7 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 
+// Generate refresh token
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     { _id: this._id },
